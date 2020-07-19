@@ -1,0 +1,29 @@
+<div class="container">
+    <div class="row" style="text-align: center;">
+            <div class="col-md-12" style="background-image: url('https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?cs=srgb&dl=flat-lay-photography-of-vegetable-salad-on-plate-1640777.jpg&fm=jpg');"><span class="text" style="background-color:rgb(119, 136, 153,0.7); font-size:xx-large;  border-radius: 10px;">&nbsp;You're looking hungry!&nbsp;</span></br>
+            </div>
+    </div>
+    </br>
+    <div class="row" style="text-align: center; background-color:#05386b;"><h3 class="text">Our Meal Packages</h3>
+
+    {{#each data}}
+        <div class="text col-md-3" style="text-align: center;">
+            <img alt="Meal image" src="/imgs/m2.jpg" class="img-fluid">
+            {{name}}</br>
+            Meals included:</br>
+            {{#each meals}}
+                {{name}}&nbsp;
+            {{/each}}</br>
+            {{#if topMeal}}
+                <span class="glyphicon glyphicon-star" style="color: yellow;">&nbsp;Top Meal</span>
+            {{else}}
+                </br>
+            {{/if}}
+        </div>
+    {{else}}
+        <div class="text col-md-12">No meal data is available at this time</div>
+    {{/each}}
+    </div>
+</div>
+
+{{>footer}}

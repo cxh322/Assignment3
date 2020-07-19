@@ -1,0 +1,12 @@
+<div class="container">
+        {{#each students}}
+        <div class="row">
+            <div class="col-md-3">firstname: {{firstname}}</div>
+            <div class="col-md-3">lastname:{{lastname}}</div>
+            <div class="col-md-3">Email: {{email}}</div>
+        </div>
+        </br>
+        {{else}}
+            <h4>No customers were found</h4>
+        {{/each}}
+</div>
