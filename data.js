@@ -3,7 +3,7 @@ var nodemailer = require('nodemailer');
  var transporter = nodemailer.createTransport({
    service: 'gmail',
    auth: {
-     user: 'hasturchen@gmail.com',
+     user: '111@gmail.com',
      pass: 'nimasile.1'
    }
  });
@@ -61,7 +61,7 @@ module.exports.validateRegister = (data)=>{
 
                     
                      var mailOptions = {
-                         from: 'hasturchen@gmail.com',
+                         from: '123@gmail.com',
                          to: `${data.email}`,
                          subject: 'Registering with the site',
                          text: 'Thank you for registering with Happy Food!'

@@ -3,22 +3,23 @@ https://floating-hamlet-06670.herokuapp.com/
 
 https://github.com/cxh322/a2
 
-This version only completes the connection to the mongoose database
-
 */
-const mongoose = require("mongoose");
 
-let Schema = mongoose.Schema;
+const mongoose = require("mongoose");
+var Schema = mongoose.Schema;
+const bcrypt = require('bcryptjs');
 
 let customerSchema = new Schema({
-    firstname: String,
-    lastname: String,
-    email: String,
-    password: String
+    email: {
+        type: String,
+        unique: true
+    },
+    password: String,
+    fname: String,
+    lname: String
 });
 
-let Customers;
-
+let customers;
 
 module.exports.initialize = function () {
     return new Promise(function (resolve, reject) {
@@ -30,57 +31,68 @@ module.exports.initialize = function () {
 
     db.once('open', ()=>{
 
-    Customers = db.model("customers", customerSchema);
+    customers = db.model("customers", customerSchema);
 
     resolve();
     });
     });
    }; 
 
-   module.exports.addCustomer = function (data) {
+module.exports.registerUser = function(inData){
     return new Promise(function (resolve, reject) {
-        
-        for (var formEntry in data){
-            if(data[formEntry] == "")
-            data[formEntry = null];
+        if(inData.password != inData.password1){
+            console.log("Passwords do not match");
         }
-        var newCustomer = new Customers(data);
-
-        newCustomer.save((err)=>{
+        else{
+            bcrypt.genSalt(10, function(err, salt) { 
+            bcrypt.hash(inData.password, salt, function(err, hash) { 
+                if(err){
+                  console.log("There was an error encrypting the password")
+                }
+        else {
+            inData.password = hash;
+            let newcustomer = new customers(inData);
+            newcustomer.save(() => {
             if(err){
                 console.log("err: "+err);
-                reject();              
+                reject();    
             }
-            else{
-                console.log("Saved: "+data.name);
-                resolve();    
-            }
-        })
-    })
-}
+        else{
+            resolve(inData);
+        }
+    })}
+})
+})}     
+})}
 
-module.exports.getCustomer = function (data) {
+
+module.exports.validateUser = function(data) {
     return new Promise(function (resolve, reject) {
-        Customers.find().exec().then((returedCustomers)=>{
-            resolve(filteredMongoose(returedCustomers));
-        }).catch((err)=>{
-            console.log("Err"+err);
-            reject(err);
+        customers.find({
+            email: data.email
+        }).exec()
+            .then((customer) => {
+                if(!data){
+                    reject();
+                    data.message ="Incorrect Password";
+                }
+                else{
+                    bcrypt.compare(data.password, customer[0].password).then((res) => {
+                        if(res===true){
+                            customers.update(
+                                { email: customer[0].email },
+                                { $set: {login: true }},
+                            ).exec()
+                            .then((() => {
+                                resolve(customer[0]);
+                            })).catch((err) => {
+                                console.log("Incorrect user: " + err)
+                            })} 
+                            else
+                            console.log("Incorrect Password for user: "+data.email)
+                    })}
+            }).catch(() => {
+                console.log("Cannot find user: "+data.email)
         })
-        
     })
-}
-
-
-
-const filteredMongoose = (arrayOfMongooseDocuments) =>{
-    const tempArray = [];
-    if(arrayOfMongooseDocuments.length !==0){
-        arrayOfMongooseDocuments.forEach(doc =>{
-            var tmp = doc.toObject();
-            tmp.id = doc._id.toString();
-            tempArray.push(tmp);
-        })
-    }
-    return tempArray;
 }
