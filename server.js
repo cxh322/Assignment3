@@ -3,7 +3,6 @@ https://floating-hamlet-06670.herokuapp.com/
 
 https://github.com/cxh322/a2
 
-This version only completes the connection to the mongoose database
 
 */
 const express = require("express");
@@ -13,6 +12,9 @@ const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
 const app = express();
 const db= require("./db.js");
+const clientSessions = require("client-sessions");
+
+
 
 const HTTP_PORT = process.env.PORT || 8080;
 
@@ -20,7 +22,7 @@ function onHttpStart() {
     console.log("Express http server listening on: " + HTTP_PORT);
   }
 
-
+ 
 
 app.engine('.hbs', exphbs({ 
     extname: '.hbs',
@@ -37,7 +39,7 @@ app.set("views", "./views");
 app.set('view engine', '.hbs');
 
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
+
 
 
 // default route
@@ -59,37 +61,76 @@ app.get("/meals",(req,res)=>{
     });
 });
 
-
 //login route
-
-app.get("/login",(req,res)=>{
-    res.render("login");
-});
-
-
-app.post("/login",(req,res)=>{
-    data.validateLogin(req.body).then(()=>{
-        res.render("dashboard",{data: req.body});
-    }).catch((data)=>{
-        res.render("login",{data:data});
-    });
-});
-
-//regiter routes
-
-app.get("/register",(req,res)=>{
+app.use(clientSessions({
+    cookieName: "session", 
+    secret: "assignment3", 
+    duration: 2 * 60 * 1000, 
+    activeDuration: 1000 * 60 
+  }));
+  app.use(bodyParser.urlencoded({ extended: true}));
+  
+  app.get("/register", (req,res) => {
     res.render("register");
+});
+
+app.post("/register", (req, res) => {
+    db.registerUser(req.body).then(() => {
+        res.redirect("/login");
+    }).catch((message) => {
+      console.log(message);
+        res.render("register",{data: req.body});
+    })
 })
 
-app.post("/register",(req,res)=>{
-    data.validateRegister(req.body).then(()=>{
-        res.redirect("/login");
-    }).catch((data)=>{
-        res.render("register",{data:data});
-    });
+
+app.get("/login", (req,res) => {
+    res.render("login");
 });
-
-
+app.post("/login",(req,res) => {
+    
+    if(req.body.email === "" || req.body.password === "") {
+        return res.render("login", { errorMsg: "Missing Email Address or Password." });
+      }
+      else{
+      db.validateUser(req.body).then((user)=>{
+        req.session.user = {
+          email: user.email,
+          password: user.password,
+          lname: user.lname,
+          fname: user.fname
+          }
+       res.render("dashboard",{user: req.body});
+      })
+      .catch((err)=>{
+        console.log(err);
+        res.redirect("login",{user:data});
+      })
+    }  
+})
+function ensureLogin(req, res, next) {
+  if (!req.session.user) {
+    res.redirect("/login");
+  } 
+  else {
+    next();
+  }
+}
+function ensureAdmin(req, res, next) {
+  if (!req.session.user || req.session.data.role!="admin") {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
+app.get("/dashboard", ensureLogin, (req, res) => {
+  res.render("dashboard", {data: req.session.user, layout: false});
+});
+app.get("/logout", function(req, res) {
+    req.session.reset();
+    res.redirect("login");
+})
+  
 //catch-all
 app.use((req,res)=>{
     res.status(404).send("Nothing to see here, move along");
