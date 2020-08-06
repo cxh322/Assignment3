@@ -12,8 +12,10 @@
       <link rel="stylesheet" href="/css/style.css" type="text/css" />
       <script src="https://use.fontawesome.com/95db7d92a6.js"></script>
       <title>{{title}}</title>
+    
   </head>
   <body>
+    
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -33,11 +35,20 @@
           <ul class="nav navbar-nav">
             {{#navLink "/"}}Home{{/navLink}}
             {{#navLink "/meals"}}Meals{{/navLink}}
+           
           </ul>
+         {{#if user}}
           <form class="navbar-form navbar-right">
            <a href="/register" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;Register</a>
-            <a href="/login" class="btn btn-primary"><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;&nbsp;Log In</a>        
+          <a href="/logout" class="btn btn-primary"><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;&nbsp;Log Out</a>
+           </form> 
+            {{/if}}
+          {{#unless user}}
+           <form class="navbar-form navbar-right">
+            <a href="/register" class="btn btn-primary"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;Register</a>
+            <a href="/login" class="btn btn-primary"><span class="glyphicon glyphicon-chevron-right"></span>&nbsp;&nbsp;Log In</a>  
           </form> 
+          {{/unless}}  
 
             
               
