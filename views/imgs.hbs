@@ -1,0 +1,16 @@
+<div class="row">
+<div class="col-md-12">
+ <h2>Pictures <a href="/meals/add" class="btn btn-success pull-right">Add New Meals</a></h2>
+ <hr />
+ </div>
+ {{#each imgs}}
+ <div class="col-md-12">
+ <img src="/imgs/{{this}} " class="img-responsive img-thumbnail" /> 
+ </div>
+
+{{else}}
+<div class="col-md-12 text-center">
+<strong>No imgs Available</strong>
+</div> 
+{{/each}}
+</div> 
